@@ -315,7 +315,6 @@
             margin-bottom: 10px;
         }
 
-        /* List View Styles */
         .list-view {
             display: none;
         }
@@ -852,7 +851,6 @@
         </div>
 
         <div class="quiz-box">
-            <!-- Bookmarks List View -->
             <div class="list-view" id="bookmarks-view">
                 <div class="list-header">
                     <h2 class="list-title">⭐ My Bookmarks</h2>
@@ -864,7 +862,6 @@
                 </div>
             </div>
 
-            <!-- History List View -->
             <div class="list-view" id="history-view">
                 <div class="list-header">
                     <h2 class="list-title">📊 My History</h2>
@@ -876,7 +873,6 @@
                 </div>
             </div>
 
-            <!-- Quiz View -->
             <div id="main-view">
                 <div class="loading" id="loading">Loading questions...</div>
                 <div class="error" id="error" style="display: none;"></div>
@@ -921,32 +917,14 @@
             </div>
         </div>
 
-        <!-- Google AdSense Ad Container -->
         <div class="ad-container">
             <div class="ad-label">Advertisement</div>
-            <!-- Google AdSense広告コードをここに配置 -->
             <div class="ad-placeholder">
-                <!-- 
-                実際の広告コードに置き換えてください：
-                
-                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
-                     crossorigin="anonymous"></script>
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-XXXXXXXXXX"
-                     data-ad-slot="YYYYYYYYYY"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-                -->
                 Google AdSense Ad Placeholder<br>
                 <small>Replace this with your actual AdSense code</small>
             </div>
         </div>
 
-        <!-- Signature -->
         <div class="signature">
             Produced by <a href="#" target="_blank">TsukuruJapanese</a>
         </div>
@@ -964,14 +942,13 @@
         let isShuffleMode = true;
         let sessionAnswers = [];
         let revealedAnswers = new Set();
-        let savedQuizState = null; // クイズの状態を保存
+        let savedQuizState = null;
 
         const BOOKMARKS_KEY = 'quiz_bookmarks';
         const HISTORY_KEY = 'quiz_history';
         const MAX_HISTORY_ITEMS = 100;
         const MAX_BOOKMARK_ITEMS = 100;
 
-        // LocalStorage functions
         function getBookmarks() {
             const data = localStorage.getItem(BOOKMARKS_KEY);
             return data ? JSON.parse(data) : [];
@@ -980,11 +957,9 @@
         function saveBookmark(questionId) {
             const bookmarks = getBookmarks();
             if (bookmarks.includes(questionId)) {
-                // 既にブックマーク済みの場合は何もしない
                 return;
             }
             
-            // 上限チェック
             if (bookmarks.length >= MAX_BOOKMARK_ITEMS) {
                 const message = `You have reached the bookmark limit (${MAX_BOOKMARK_ITEMS}).\n\nPlease remove some bookmarks before adding new ones.\n\nWould you like to view your bookmarks now?`;
                 if (confirm(message)) {
@@ -1016,7 +991,7 @@
             if (confirm(message)) {
                 localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([]));
                 updateCounts();
-                showBookmarksList(); // リストを再表示
+                showBookmarksList();
             }
         }
 
@@ -1032,7 +1007,7 @@
             if (confirm(message)) {
                 localStorage.setItem(HISTORY_KEY, JSON.stringify({}));
                 updateCounts();
-                showHistoryList(); // リストを再表示
+                showHistoryList();
             }
         }
 
@@ -1044,7 +1019,6 @@
         function saveHistory(questionId, correct) {
             const history = getHistory();
             
-            // 新しい履歴を追加または更新
             if (!history[questionId]) {
                 history[questionId] = { 
                     correct: 0, 
@@ -1056,13 +1030,10 @@
             if (correct) history[questionId].correct++;
             history[questionId].lastAnswered = Date.now();
             
-            // 履歴が上限を超えた場合、最も古いものを削除
             const historyEntries = Object.entries(history);
             if (historyEntries.length > MAX_HISTORY_ITEMS) {
-                // lastAnsweredでソートして最も古いものを特定
                 historyEntries.sort((a, b) => a[1].lastAnswered - b[1].lastAnswered);
                 
-                // 古いものから削除して上限以内に収める
                 const itemsToRemove = historyEntries.length - MAX_HISTORY_ITEMS;
                 for (let i = 0; i < itemsToRemove; i++) {
                     delete history[historyEntries[i][0]];
@@ -1079,7 +1050,14 @@
         }
 
         function getQuestionId(question) {
-            return btoa(question.question + question.options.join('')).substring(0, 20);
+            const str = question.question + question.options.join('');
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return 'q_' + Math.abs(hash).toString(36);
         }
 
         function shuffleArray(array) {
@@ -1103,7 +1081,6 @@
             };
         }
 
-        // View Management
         function showView(viewName) {
             const filterControls = document.getElementById('filter-controls');
             const backToTopHeader = document.getElementById('back-to-top-header');
@@ -1113,7 +1090,6 @@
             document.getElementById('history-view').classList.toggle('show', viewName === 'history');
             document.getElementById('dropdown-menu').classList.remove('show');
             
-            // フィルターコントロールの表示/非表示
             if (viewName === 'main') {
                 filterControls.style.display = 'block';
                 backToTopHeader.style.display = 'none';
@@ -1161,7 +1137,7 @@
         }
 
         function showBookmarksList() {
-            saveQuizState(); // 現在の状態を保存
+            saveQuizState();
             const bookmarks = getBookmarks();
             const container = document.getElementById('bookmarks-list');
             
@@ -1177,7 +1153,7 @@
         }
 
         function showHistoryList() {
-            saveQuizState(); // 現在の状態を保存
+            saveQuizState();
             const history = getHistory();
             const container = document.getElementById('history-list');
             
@@ -1237,7 +1213,6 @@
             }
         };
 
-        // Click on list item to go to that question
         document.addEventListener('click', (e) => {
             const listItem = e.target.closest('.list-item');
             if (listItem && !e.target.closest('.eye-btn')) {
@@ -1250,7 +1225,6 @@
         });
 
         function goToQuestion(question) {
-            // Find the question in filtered set or create a new set with just this question
             filteredQuestions = [shuffleOptions(question)];
             currentQuestion = 0;
             score = 0;
@@ -1265,7 +1239,6 @@
             loadQuestion();
         }
 
-        // Menu toggle
         document.getElementById('menu-button').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('dropdown-menu').classList.toggle('show');
@@ -1283,11 +1256,9 @@
         document.getElementById('back-to-top-bookmarks').addEventListener('click', backToMain);
         document.getElementById('back-to-top-history').addEventListener('click', backToMain);
 
-        // Clear All buttons
         document.getElementById('clear-bookmarks-btn').addEventListener('click', clearAllBookmarks);
         document.getElementById('clear-history-btn').addEventListener('click', clearAllHistory);
 
-        // Load CSV
         async function loadQuestions() {
             try {
                 const response = await fetch('questions.csv');
@@ -1334,7 +1305,6 @@
         }
 
         function applyFilters() {
-            // Filter by level and category
             filteredQuestions = allQuestions.filter(q => {
                 const levelMatch = q.level === currentLevel;
                 const categoryMatch = currentCategory === 'ALL' || q.category === currentCategory;
@@ -1483,7 +1453,6 @@
             applyFilters();
         }
 
-        // Event Listeners
         document.getElementById('level-tabs').addEventListener('click', (e) => {
             if (e.target.classList.contains('tab')) {
                 document.querySelectorAll('#level-tabs .tab').forEach(t => t.classList.remove('active'));
@@ -1502,7 +1471,6 @@
             }
         });
 
-        // Toggle switch for Shuffle/Sequential
         document.getElementById('order-toggle').addEventListener('click', (e) => {
             const option = e.target.closest('.toggle-option');
             if (option) {
