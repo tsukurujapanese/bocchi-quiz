@@ -1379,6 +1379,16 @@
             selectedAnswer = index;
             const quiz = filteredQuestions[currentQuestion];
             const options = document.querySelectorAll('#quiz-area #options .option');
+            
+            console.log('Options found:', options.length);
+            console.log('Selected index:', index);
+            console.log('Correct index:', quiz.correct);
+            
+            if (options.length === 0) {
+                console.error('No options found!');
+                return;
+            }
+            
             const feedback = document.getElementById('feedback');
             const isCorrect = index === quiz.correct;
             
@@ -1386,17 +1396,25 @@
             sessionAnswers.push(isCorrect);
             
             options.forEach(opt => opt.classList.add('disabled'));
-            options[index].classList.add('selected');
+            if (options[index]) {
+                options[index].classList.add('selected');
+            }
             
             if (isCorrect) {
-                options[index].classList.add('correct');
+                if (options[index]) {
+                    options[index].classList.add('correct');
+                }
                 feedback.className = 'feedback show correct';
                 feedback.innerHTML = `<div>✅ Correct!</div><div class="explanation">${quiz.explanation}</div>`;
                 score++;
                 document.getElementById('score').textContent = score;
             } else {
-                options[index].classList.add('incorrect');
-                options[quiz.correct].classList.add('correct');
+                if (options[index]) {
+                    options[index].classList.add('incorrect');
+                }
+                if (options[quiz.correct]) {
+                    options[quiz.correct].classList.add('correct');
+                }
                 feedback.className = 'feedback show incorrect';
                 feedback.innerHTML = `<div>❌ Wrong! The answer is "${quiz.options[quiz.correct]}"</div><div class="explanation">${quiz.explanation}</div>`;
             }
