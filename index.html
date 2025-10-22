@@ -1378,7 +1378,12 @@
             
             selectedAnswer = index;
             const quiz = filteredQuestions[currentQuestion];
-            const options = document.querySelectorAll('#options .option');
+            const optionsContainer = document.querySelector('#quiz-area .options');
+            if (!optionsContainer) {
+                console.error('Options container not found');
+                return;
+            }
+            const options = optionsContainer.querySelectorAll('.option');
             const feedback = document.getElementById('feedback');
             const isCorrect = index === quiz.correct;
             
