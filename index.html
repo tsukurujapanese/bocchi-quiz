@@ -1073,10 +1073,17 @@
             const indices = [0, 1, 2, 3];
             const shuffledIndices = shuffleArray(indices);
             
+            const newOptions = shuffledIndices.map(i => question.options[i]);
+            const newCorrect = shuffledIndices.indexOf(question.correct);
+            
+            console.log('Original correct:', question.correct);
+            console.log('Shuffled indices:', shuffledIndices);
+            console.log('New correct:', newCorrect);
+            
             return {
                 ...question,
-                options: shuffledIndices.map(i => question.options[i]),
-                correct: shuffledIndices.indexOf(question.correct),
+                options: newOptions,
+                correct: newCorrect,
                 originalCorrect: question.correct
             };
         }
